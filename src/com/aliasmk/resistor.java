@@ -4,7 +4,10 @@
  * Description: This program converts between resistor values and color codes, quickly and easily.
  * Usage: java resistor <value | color> < <resistance_value> [tolerance] | <color1> <color2> <color3> <color4> >
  */
+package com.aliasmk;
 
+
+ 
 public class resistor
 {	
 	//global vars to be passed to valueToColor
@@ -20,18 +23,27 @@ public class resistor
 	double[] digitTolerance = {0,1,2,0,0,0.5,0.25,0.1,0,0,5,10};
 
 	//VALUE TO COLOR CONTRUCTOR
-	public resistor(double resistval, String input, double tolerancee)
+	public resistor(String input, double tolerancee, boolean startMethod)
 	{
 		//pass arg to global var
 		rawInput = input;
-		resistance = resistval;
+		resistance = Double.parseDouble(input);
 		tolerance = tolerancee;
+		valueToColor();
+		
+	}
+	public resistor(String input, boolean startMethod)
+	{
+		//pass arg to global var
+		rawInput = input;
+		resistance = Double.parseDouble(input);
+		tolerance = 5;
 		valueToColor();
 		
 	}
 	
 	//COLOR TO VALUE CONSTRUCTOR
-	public resistor(String[] colors)
+	public resistor(String[] colors, boolean startMethod)
 	{
 		colorToValue(colors);
 	}
@@ -52,12 +64,12 @@ public class resistor
 			//if the first arg is "value", we want to look for two doubles right after it, one for value and one for tolerance
 			if(args[0].equalsIgnoreCase("value"))
 			{
-				double resistval = 0;
+				
 				//Catch if the User Enters something that isnt an Integer
 				try
 				{
 					//get the first double (value)
-					resistval = Double.parseDouble(args[1]);		
+					Double.parseDouble(args[1]);		
 				}
 				catch(Exception e)
 				{
@@ -68,13 +80,13 @@ public class resistor
 				try
 				{
 					//if there is a second arg (tolerance) use that in the constructor...
-					resistor r = new resistor(resistval, args[1], Double.parseDouble(args[2]));
+					resistor r = new resistor(args[1], Double.parseDouble(args[2]), true);
 				}
 				catch(Exception e)
 				{
 					//if there isnt a second arg (tolerance), use the default 5% value. Its really common.
 					System.out.println("[warning] No tolerance value specified, assuming 5%");
-					resistor r = new resistor(resistval, args[1], 5.0);
+					resistor r = new resistor(args[1], true);
 					
 				}
 			}
@@ -89,7 +101,7 @@ public class resistor
 					inputcolors[i] = args[i+1].toUpperCase();
 				}	
 				//goto contructor.
-				resistor r = new resistor(inputcolors);
+				resistor r = new resistor(inputcolors, true);
 			}
 			else
 			{
@@ -105,9 +117,15 @@ public class resistor
 	}
 	
 	//decodes colors into values
-	public void colorToValue(String[] color)
+	public double[] colorToValue(String[] color)
 	{
+		//index 0 is result, index 1 is tolerance
+		double[] result = new double[2];
+		
+		double value = 0;
+		
 		//difference mothods to calclulate for different numbers of bands.
+		
 		if(color.length == 4)
 		{
 			//basically search the array until you find each color's corresponding index in the array.
@@ -131,7 +149,7 @@ public class resistor
 			//this is ugly but does the job. Converts the casted ints into a string, concats them, then changes them back into one int.
 			String firstTwo = Integer.toString(digit1)+Integer.toString(digit2);
 			int firstTwoInt = Integer.parseInt(firstTwo);
-			double value;
+			
 			//calculate the final value. If statement because if the multiplier is >1 we can cast it to an int to look nice.
 			if(digits[2] <9)
 			{
@@ -159,11 +177,16 @@ public class resistor
 			System.out.println("Only 4-color resistors are supported at this time.");
 			System.exit(1);
 		}
+		result[0] = value;
+		result[1] = tolerance;
+		
+		return result;
 	}
 	
 	//encodes numerical resistor values to color codes
-	public void valueToColor()
+	public String[] valueToColor()
 	{
+		String[] result = new String[4];
 		//Set Vars
 		String inputstring = Double.toString(resistance);
 		int length = rawInput.length();		
@@ -239,6 +262,18 @@ public class resistor
 			System.out.println("Multiplier: " +Math.pow(10,-(zeroafterpoint)));
 		else
 			System.out.println("Multiplier: " +Math.pow(10,length-2));
-		System.out.println("Colors: " +digitColors[digit1] +" " +digitColors[digit2] +" " +digitColors[multiplier] +" " +digitColors[tol]);
+		System.out.print("Colors: ");
+		result[0] = digitColors[digit1];
+		result[1] = digitColors[digit2];
+		result[2] = digitColors[multiplier];
+		result[3] = digitColors[tol];
+		
+		for(int i = 0; i<result.length; i++)
+		{
+			System.out.print(result[i] +" ");
+		}
+		
+		System.out.println();
+		return result;
 	}
 }
