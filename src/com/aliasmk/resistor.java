@@ -29,23 +29,35 @@ public class resistor
 		rawInput = input;
 		resistance = Double.parseDouble(input);
 		tolerance = tolerancee;
-		valueToColor();
+		if(startMethod)
+			valueToColor();
 		
 	}
 	public resistor(String input, boolean startMethod)
 	{
 		//pass arg to global var
 		rawInput = input;
-		resistance = Double.parseDouble(input);
+		boolean error = false;
+		try
+		{
+			resistance = Double.parseDouble(input);
+		}
+		catch(Exception e)
+		{
+			System.out.println("Bad input: Should be Double or Integer");
+			error = true;
+		}
 		tolerance = 5;
-		valueToColor();
+		if(startMethod)
+			valueToColor();
 		
 	}
 	
 	//COLOR TO VALUE CONSTRUCTOR
 	public resistor(String[] colors, boolean startMethod)
 	{
-		colorToValue(colors);
+		if(startMethod)
+			colorToValue(colors);
 	}
 	
 	//Displays Usage Message
@@ -197,6 +209,7 @@ public class resistor
 		char[] input = new char[length];
 		
 		//does the input contain a decimal?  if so make sure its taken into account below when calculating the multiplier. POTENTIAL ERROR if entry is 390.5
+		//TODO: Fix error that occurs with one digit numbers
 		for(int i = 0; i<length; i++)
 		{	
 			if(rawInput.charAt(i) == '.')
